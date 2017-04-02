@@ -25,7 +25,8 @@ function uiInit() {
     $("#btnPause").click(pauseAnimation);
     $("#btnContinue").click(continueAnimation);
     $("#btnReset").click(resetAnimation);
-    $("#btnGenerateQueue").click(generateSeekPositions);
+    $("#btnGenerateQueueNew").click(function() { generateSeekPositions(true); });
+	$("#btnGenerateQueueAppend").click(function () { generateSeekPositions(false); });
 
     // Hide alerts
     $("#alertQueueError").hide();
@@ -156,7 +157,8 @@ function configurationLock(lock) {
         $("#inputSeekPositionQueueGenSelect").prop("disabled", true);
         $("#inputSeekPositionQueueGenSelect").selectpicker("refresh");
         $("#inputGenerateCount").prop("disabled", true);
-        $("#btnGenerateQueue").prop("disabled", true);
+        $("#btnGenerateQueueNew").prop("disabled", true);
+		$("#btnGenerateQueueAppend").prop("disabled", true);
         $("#inputSeekPositionQueue").prop("disabled", true);
     } else {
         $("#inputTrackSize").prop("disabled", false);
@@ -164,7 +166,8 @@ function configurationLock(lock) {
         $("#inputSeekPositionQueueGenSelect").prop("disabled", false);
         $("#inputSeekPositionQueueGenSelect").selectpicker("refresh");
         $("#inputGenerateCount").prop("disabled", false);
-        $("#btnGenerateQueue").prop("disabled", false);
+        $("#btnGenerateQueueNew").prop("disabled", false);
+		$("#btnGenerateQueueAppend").prop("disabled", false);
         $("#inputSeekPositionQueue").prop("disabled", false);
     }
 }
@@ -177,7 +180,7 @@ function animationControlsLock(lockStart, lockPause, lockContinue, lockReset) {
     $("#btnReset").prop("disabled", lockReset);
 }
 
-function generateSeekPositions() {
+function generateSeekPositions(clearCurrent) {
     var mode = $("#inputSeekPositionQueueGenSelect").selectpicker("val");
     var genCount = $("#inputGenerateCount").val();
     var trackSize = $("#inputTrackSize").val();
@@ -215,7 +218,7 @@ function generateSeekPositions() {
     }
 
     // Append array to queue input
-    if ($("#inputSeekPositionQueue").val().trim().length > 0) {
+    if ($("#inputSeekPositionQueue").val().trim().length > 0 && !clearCurrent) {
         $("#inputSeekPositionQueue").val(function() {
             return this.value + ", " + positions.join(", ");
         });

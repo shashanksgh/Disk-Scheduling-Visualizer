@@ -2,7 +2,7 @@ body {
     padding-top: 70px;
 }
 
-#animationControls .btn-group {
+.btn-group-control-panel .btn-group {
     float: left;
     width: 100%;
 }
@@ -23,7 +23,7 @@ body {
     .container {
         width: 1500px;
     }
-    #animationControls .btn-group {
+    .btn-group-control-panel .btn-group {
         float: none;
         width: 1%;
     }
