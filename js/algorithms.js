@@ -33,11 +33,13 @@ function sstf(start, direction, arr) {
             prev = ordered[i-1].pos;
             ordered.splice(i-1,1);
             i--;
+			direction = 0;
         }
         else {
             result.push(ordered[i]);
             prev = ordered[i].pos;
             ordered.splice(i,1);
+			direction = 1;
         }
     }
     return result;
