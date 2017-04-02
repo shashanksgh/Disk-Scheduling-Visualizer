@@ -77,7 +77,7 @@ function scan(start, size, direction, arr) {
             if (i!=ordered.length+1) {
                 result.push(ordered[ordered.length-1]);
                 ordered.splice(ordered.length-1,1);
-                i--;
+				if (!direction) i--;
             }
             else {
                 result.push({
@@ -136,7 +136,7 @@ function cscan(start, size, direction, arr) {
             if (i!=ordered.length+1) {
                 result.push(ordered[ordered.length-1]);
                 ordered.splice(ordered.length-1,1);
-                i--;
+				if (!direction) i--;
             }
             else {
                 result.push({
@@ -185,7 +185,6 @@ function look(start, size, direction, arr) {
         else if (i>=ordered.length) {
             result.push(ordered[ordered.length-1]);
             ordered.splice(ordered.length-1,1);
-            i--;
         }
         else { //if ((prev-ordered[i-1].pos)<(ordered[i].pos-prev)) 
             result.push(ordered[i-1]);
@@ -232,7 +231,6 @@ function clook(start, size, direction, arr) {
             if (i!=ordered.length+1) {
                 result.push(ordered[ordered.length-1]);
                 ordered.splice(ordered.length-1,1);
-                i--;
             }
             else {
                  if (direction) i=0; else i++;

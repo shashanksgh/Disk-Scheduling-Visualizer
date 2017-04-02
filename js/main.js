@@ -267,7 +267,7 @@ function getConfigData() {
     data.trackStart = parseInt($("#inputStartingTrack").val());
 	
 	// Selected direction [right/left]
-	data.direction = $("input[name='directionRadios']:checked").val();
+	data.direction = parseInt($("input[name='directionRadios']:checked").val());
 
     // Queue
     data.seekQueue = [];

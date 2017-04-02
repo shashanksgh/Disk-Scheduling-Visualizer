@@ -17,6 +17,7 @@ var anim_colors = [
 function animSetup(config) {
 	anim_track_size = config.trackSize;
 	anim_track_start = config.trackStart;
+	anim_track_direction = config.direction;
 	
 	anim_data = [];
 	
@@ -24,7 +25,7 @@ function animSetup(config) {
 	for (var algo_id in algos) {
 		var algo_info = algos[algo_id];
 		
-		var processed_queue = algo_info.func(anim_track_start, anim_track_size, 1/*0=left; 1=right; anim_track_direction*/, config.seekQueue);
+		var processed_queue = algo_info.func(anim_track_start, anim_track_size, anim_track_direction, config.seekQueue);
 		if (processed_queue != null) {
 			var algo_data = {
 				id: algo_id,
