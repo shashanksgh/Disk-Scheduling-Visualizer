@@ -154,6 +154,7 @@ function configurationLock(lock) {
     if (lock) {
         $("#inputTrackSize").prop("disabled", true);
         $("#inputStartingTrack").prop("disabled", true);
+		$("input[name='directionRadios']").prop("disabled", true);
         $("#inputSeekPositionQueueGenSelect").prop("disabled", true);
         $("#inputSeekPositionQueueGenSelect").selectpicker("refresh");
         $("#inputGenerateCount").prop("disabled", true);
@@ -163,6 +164,7 @@ function configurationLock(lock) {
     } else {
         $("#inputTrackSize").prop("disabled", false);
         $("#inputStartingTrack").prop("disabled", false);
+		$("input[name='directionRadios']").prop("disabled", false);
         $("#inputSeekPositionQueueGenSelect").prop("disabled", false);
         $("#inputSeekPositionQueueGenSelect").selectpicker("refresh");
         $("#inputGenerateCount").prop("disabled", false);
@@ -263,6 +265,9 @@ function getConfigData() {
 
     // Fetch track starting position
     data.trackStart = parseInt($("#inputStartingTrack").val());
+	
+	// Selected direction [right/left]
+	data.direction = $("input[name='directionRadios']:checked").val();
 
     // Queue
     data.seekQueue = [];
