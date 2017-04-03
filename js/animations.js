@@ -129,10 +129,7 @@ function render(t, dt, canvas_width, canvas_height) {
 		pushStyle(draw_tasks, 'black');
 		pushText(draw_tasks, algo_data.info.short_name, legend_x, legend_y + 4);
 		
-		// HACK: this depends on a properly configured context (which we're now mostly doing with draw_tasks)
-		var text_measure = context.measureText(algo_data.info.short_name);
-		
-		legend_x += text_measure.width + 32;
+		legend_x += 48;
 	}
 	
     pushTextAlign(draw_tasks, 'center');
@@ -175,31 +172,52 @@ function render(t, dt, canvas_width, canvas_height) {
         var radius = radius_initial;
         
         var algo_data = anim_data[algo_index];
-            
+        
+		var prev_minus = false;
+		
         for (var i in algo_data.queue) {
-            var pos = algo_data.queue[i].pos;
-            
-            // TODO: make sure this fits into canvas_height?
-            node_y += 0.125 * segment_width * Math.abs(pos - prev_node_pos);
+			var item = algo_data.queue[i];
+			
+            node_y += 0.125 * segment_width * Math.abs(item.pos - prev_node_pos);
             
             if (node_y > new_canvas_height) {
 				new_canvas_height = node_y;
 			}
             
-            if (prev_node_pos == pos) {
+            if (prev_node_pos == item.pos && item.index != -1 && !prev_minus) {
                 radius += radius_incr;
             }
             else {
                 radius = radius_initial;
             }
             
-            var node_x = padding + pos * segment_width;
+            var node_x = padding + item.pos * segment_width;
             
 			pushStyle(draw_tasks, algo_data.color);
-			pushLine(draw_tasks, prev_x, prev_y, node_x, node_y);
-			pushCircle(draw_tasks, node_x, node_y, radius);
-
-            prev_node_pos = pos;
+			
+			if (item.index == -1) {
+				if (prev_minus) {
+					node_y = prev_y;
+					
+					pushLineDash(draw_tasks, [5, 15]);
+				}
+			}
+			else {
+				pushLineDash(draw_tasks, []);
+			}
+			
+			if (prev_node_pos != item.pos) {
+				pushLine(draw_tasks, prev_x, prev_y, node_x, node_y);
+			}
+			
+			if (item.index != -1 && !prev_minus || prev_node_pos != item.pos) {
+				pushLineDash(draw_tasks, []);
+				pushCircle(draw_tasks, node_x, node_y, radius);
+			}
+			
+            prev_node_pos = item.pos;
+			
+			prev_minus = (item.index == -1);
             
             prev_x = node_x;
             prev_y = node_y;
@@ -268,6 +286,12 @@ function render(t, dt, canvas_width, canvas_height) {
 				break;
 			}
 			
+			case 'line_dash': {
+				context.setLineDash(task.segments);
+				
+				break;
+			}
+			
 			case 'rect': {
 				if (task.mode == 'fill') {
 					context.fillRect(task.x, task.y, task.w, task.h);
@@ -329,6 +353,13 @@ function pushLine(draw_tasks, ax, ay, bx, by) {
 		ay: ay,
 		bx: bx,
 		by: by
+	});
+}
+
+function pushLineDash(draw_tasks, segments) {
+	draw_tasks.push({
+		type: 'line_dash',
+		segments: segments
 	});
 }
 
