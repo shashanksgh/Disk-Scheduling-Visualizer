@@ -66,11 +66,11 @@
                             </div>
                         </div>
                         <!-- CONFIGURATION - ALGORITHM SELECTION -->
-                        <div class="row">
+                        <div class="row" style="margin-bottom: 40px;">
                             <div class="form-group">
-                                <label for="inputAlgorithmSelect">Algorithm (can select multiple)</label>
+                                <label for="inputAlgorithmSelect">Algorithm(s)</label>
                                 <select id="algorithmSelect" class="selectpicker form-control" multiple>
-                                    <option value="fcfs">FCFS (First Come, First Served)</option>
+                                    <option value="fcfs" selected>FCFS (First Come, First Served)</option>
                                     <option value="sstf">SSTF (Shortest Seek Time First)</option>
                                     <option value="scan">Elevator (SCAN)</option>
                                     <option value="cscan">Circular SCAN (C-SCAN)</option>
@@ -164,7 +164,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">Disk scheduling animation canvas</div>
                     <div class="panel-body">
-                        <canvas id="test_canvas" style="display: block; margin: 20px auto;" width="640" height="480"></canvas>
+                        <canvas id="animCanvas" width="640" height="480"></canvas>
                     </div>
                 </div>
             </div>

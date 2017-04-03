@@ -2,8 +2,8 @@
 /// <reference path="../typings/jquery.d.ts" />
 
 /// GLOBALS
-var test_canvas = document.getElementById("test_canvas");
-var context = test_canvas.getContext("2d");
+var animCanvas = document.getElementById("animCanvas");
+var context = animCanvas.getContext("2d");
 var last_time = null;
 
 /// FUNCTIONS
@@ -11,6 +11,7 @@ function mainInit() {
     console.log("[DEBUG] mainInit() - begin");
     uiInit();
     window.requestAnimationFrame(animUpdate);
+    animSetup(getConfigData());
     console.log("[DEBUG] mainInit() - end");
 }
 
@@ -32,34 +33,35 @@ function uiInit() {
     $("#alertAlgorithmError").hide();
     $("#alertQueueError").hide();
 
-    // Make sure number inputs are fixed after inputing value
-    $("#inputTrackSize").change(function() {
-        var trackSize = $("#inputTrackSize").val();
-
-        if (trackSize < 10) {
+    // Fix input element values after changing focus
+    $("#inputTrackSize").on("change", function() {
+        var value = parseInt($("#inputTrackSize").val());
+    
+        if (isNaN(value) || value < 10)
             $("#inputTrackSize").val("10");
-        }
     });
-    $("#inputGenerateCount").change(function() {
-        var genCount = $("#inputGenerateCount").val();
-
-        if (genCount < 1) {
-            $("#inputGenerateCount").val("1");
-        }
+    $("#inputGenerateCount").on("change", function() {
+        var value = parseInt($("#inputGenerateCount").val());
+    
+        if (isNaN(value) || value < 0)
+            $("#inputGenerateCount").val("0");
     });
-    $("#inputStartingTrack").change(function() {
-        var trackSize = $("#inputTrackSize").val();
-        var startingTrack = $("#inputStartingTrack").val();
-
-        
-        /* TODO: disabled for now due to weird bug
-        if (startingTrack < 0) {
+    $("#inputStartingTrack").on("change", function() {
+        var trackSize = parseInt($("#inputTrackSize").val());
+        var value = parseInt($("#inputStartingTrack").val());
+    
+        if (isNaN(value) || value < 0)
             $("#inputStartingTrack").val("0");
-        } else if (startingTrack >= trackSize) {
-            $("#inputStartingTrack").val(trackSize - 1);
-        }
-        */
+        else if (!isNaN(trackSize) && value >= trackSize)
+            $("#inputStartingTrack").val(trackSize);
     });
+    
+    // Attach onConfigChange handler to input events of config controls
+    $("#algorithmSelect").on("change", onConfigChange);
+    $("#inputTrackSize").on("input", onConfigChange);
+    $("#inputStartingTrack").on("input", onConfigChange);
+    $("input[name='directionRadios']").on("change", onConfigChange);
+    $("#inputSeekPositionQueue").on("input", onConfigChange);
     
     generateSeekPositions();
 
@@ -247,6 +249,8 @@ function generateSeekPositions(clearCurrent) {
             return positions.join(", ");
         });
     }
+    
+    onConfigChange();
 }
 
 function validateAlgorithms()
@@ -296,28 +300,48 @@ function getConfigData() {
     data.algorithms = $("#algorithmSelect").selectpicker("val");
 
     // Fetch track size
-    data.trackSize = $("#inputTrackSize").val();
+    data.trackSize = parseInt($("#inputTrackSize").val());
+    
+    if (isNaN(data.trackSize) || data.trackSize < 10)
+        data.trackSize = 10;
 
     // Fetch track starting position
     data.trackStart = parseInt($("#inputStartingTrack").val());
+    
+    if (isNaN(data.trackStart) || data.trackStart < 0)
+        data.trackStart = 0;
+    else if (data.trackStart >= data.trackSize)
+        data.trackStart = data.trackSize - 1;
     
     // Selected direction [right/left]
     data.direction = parseInt($("input[name='directionRadios']:checked").val());
 
     // Queue
     data.seekQueue = [];
-    var queueInputValues = $("#inputSeekPositionQueue").val();
-    queueInputValues = queueInputValues.replace(/\s+/g, "");
-    queueInputValues = queueInputValues.replace(/,$/g, "");
-    var positionStrings = queueInputValues.split(",");
+    
+    if (validateQueue())
+    {
+        var queueInputValues = $("#inputSeekPositionQueue").val();
+        queueInputValues = queueInputValues.replace(/\s+/g, "");
+        queueInputValues = queueInputValues.replace(/,$/g, "");
+        var positionStrings = queueInputValues.split(",");
 
-    var index;
-    for (index = 0; index < positionStrings.length; index++) {
-        data.seekQueue.push({
-            "index": index,
-            "pos": parseInt(positionStrings[index])
-        });
+        var index;
+        for (index = 0; index < positionStrings.length; index++) {
+            var pos = parseInt(positionStrings[index]);
+            
+            if (!isNaN(pos) && pos < data.trackSize) {
+                data.seekQueue.push({
+                    "index": index,
+                    "pos": pos
+                });
+            }
+        }
     }
 
     return data;
+}
+
+function onConfigChange() {
+    animSetup(getConfigData());
 }
