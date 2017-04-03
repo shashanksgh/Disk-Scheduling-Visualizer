@@ -273,8 +273,7 @@ var algos = {
 		name: 'First Come-First Serve (FCFS)',
 		short_name: 'FCFS',
 		func: function (track_start, track_size, track_direction, seek_queue) {
-			var result = fcfs(seek_queue);
-			return result;
+			return fcfs(seek_queue);
 		}
 	},
 	
@@ -282,44 +281,31 @@ var algos = {
 		name: 'Shortest Seek Time First (SSTF)',
 		short_name: 'SSTF',
 		func: function (track_start, track_size, track_direction, seek_queue) {
-			var result = sstf(track_start, track_direction, seek_queue);
-            return result;
+            return sstf(track_start, track_direction, seek_queue);
 		}
 	},
 	
 	scan: {
 		name: 'Elevator (SCAN)',
 		short_name: 'SCAN',
-		func: function (track_start, track_size, track_direction, seek_queue) {
-			var result = scan(track_start, track_size, track_direction, seek_queue);
-            return result;
-		}
+		func: scan
 	},
 	
 	cscan: {
 		name: 'Circular SCAN (C-SCAN)',
 		short_name: 'C-SCAN',
-		func: function (track_start, track_size, track_direction, seek_queue) {
-			var result = cscan(track_start, track_size, track_direction, seek_queue);
-            return result;
-		}
+		func: cscan
 	},
 	
 	look: {
 		name: 'LOOK',
 		short_name: 'LOOK',
-		func: function (track_start, track_size, track_direction, seek_queue) {
-			var result = look(track_start, track_size, track_direction, seek_queue);
-            return result;
-		}
+		func: look
 	},
 	
 	clook: {
 		name: 'C-LOOK',
 		short_name: 'C-LOOK',
-		func: function (track_start, track_size, track_direction, seek_queue) {
-			var result = clook(track_start, track_size, track_direction, seek_queue);
-            return result;
-		}
+		func: clook
 	}
 };
