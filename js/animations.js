@@ -5,6 +5,7 @@ var anim_min_canvas_height = 480;
 
 var anim_track_size, anim_track_start, anim_seek_queue;
 
+// TODO: better colors!
 var anim_colors = [
     'red',
     'orange',
@@ -31,14 +32,12 @@ function animSetup(config) {
 		
         var processed_queue = algo_info.func(anim_track_start, anim_track_size, anim_track_direction, anim_seek_queue);
         if (processed_queue != null) {
-            var algo_data = {
+            anim_data.push({
                 id: algo_id,
                 info: algo_info,
                 queue: processed_queue,
                 color: anim_colors[color_index++]
-            };
-            
-            anim_data.push(algo_data);  
+            });  
         }
     }
 }
@@ -60,7 +59,7 @@ function animSetPaused(paused) {
 function animReset() {
     animSetTime(0);
     animSetPaused(true);
-    anim_data = null;
+    //anim_data = null;
 }
 
 function animUpdate(cur_time_ms) {
@@ -98,11 +97,13 @@ function render(t, dt, canvas_width, canvas_height) {
 	
     var radius_initial = 4;
     var padding = 20;
-    var line_y = 100;
+    var line_y = padding * 3;
     var new_canvas_height = 480;
     var segment_width = (canvas_width - 2 * padding) / (anim_track_size - 1);
 	
 	pushStyle(draw_tasks, 'black');
+	
+	pushRect(draw_tasks, 0, 0, canvas_width, canvas_height);
 	
 	// draw frametime counter
 	pushTextAlign(draw_tasks, 'left');
@@ -110,6 +111,30 @@ function render(t, dt, canvas_width, canvas_height) {
 	pushText(draw_tasks, round(dt * 1000, 2) + "ms", 0, 0);
 	
 	// draw main track line
+    pushLine(draw_tasks, padding, line_y, canvas_width - padding, line_y);
+	
+	var legend_x = padding;
+	var legend_y = padding;
+	
+    pushTextBaseline(draw_tasks, 'middle');
+	
+	for (var i in anim_data) {
+		var algo_data = anim_data[i];
+		
+		pushStyle(draw_tasks, algo_data.color);
+		pushRect(draw_tasks, legend_x, legend_y, 8, 8, 'fill');
+		
+		legend_x += 8 + 4;
+		
+		pushStyle(draw_tasks, 'black');
+		pushText(draw_tasks, algo_data.info.short_name, legend_x, legend_y + 4);
+		
+		// HACK: this depends on a properly configured context (which we're now mostly doing with draw_tasks)
+		var text_measure = context.measureText(algo_data.info.short_name);
+		
+		legend_x += text_measure.width + 32;
+	}
+	
     pushTextAlign(draw_tasks, 'center');
 	pushTextBaseline(draw_tasks, 'bottom');
 	
@@ -135,6 +160,7 @@ function render(t, dt, canvas_width, canvas_height) {
 	
 	var start_x = padding + anim_track_start * segment_width;
 	
+	// draw track start
 	pushCircle(draw_tasks, start_x, line_y, radius_initial);
 	
     for (var algo_index in anim_data) {
@@ -149,14 +175,12 @@ function render(t, dt, canvas_width, canvas_height) {
         var radius = radius_initial;
         
         var algo_data = anim_data[algo_index];
-        
-        // TODO: calculate entire path in animSetup?
             
         for (var i in algo_data.queue) {
             var pos = algo_data.queue[i].pos;
             
             // TODO: make sure this fits into canvas_height?
-            node_y += 0.25 * segment_width * Math.abs(pos - prev_node_pos);
+            node_y += 0.125 * segment_width * Math.abs(pos - prev_node_pos);
             
             if (node_y > new_canvas_height) {
 				new_canvas_height = node_y;
@@ -185,10 +209,6 @@ function render(t, dt, canvas_width, canvas_height) {
     if (new_canvas_height > anim_min_canvas_height) {
         animCanvas.height = new_canvas_height + 50;
     }
-	
-	pushStyle(draw_tasks, 'black');
-	pushRect(draw_tasks, 0, 0, canvas_width, canvas_height);
-    pushLine(draw_tasks, padding, line_y, canvas_width - padding, line_y);
 	
 	for (var i in draw_tasks) {
 		var task = draw_tasks[i];
