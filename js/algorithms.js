@@ -211,7 +211,7 @@ function clook(start, size, direction, arr) {
     });
     var i=0;
     for (var index in arr) {
-        if (start<(ordered[index].pos+0.1*(direction)))
+        if (start<ordered[index].pos+(0.1*(direction)))
         {
             break;
         }
@@ -220,8 +220,13 @@ function clook(start, size, direction, arr) {
     i+=direction;
     var prev = start;
     while (ordered.length!=0) {
-        if (i<=0) {
-            if (i==0) {
+        if (i<=1) {
+            if (i==1) {
+                result.push({
+                    "index": -1,
+                    "pos": ordered[0].pos
+                })
+				ordered.splice(0,1);
                 if (!direction) i=ordered.length+1; else i--;
             }
             else {
@@ -230,12 +235,18 @@ function clook(start, size, direction, arr) {
             }
         }
         else if (i>=ordered.length) {
-            if (i!=ordered.length+1) {
+            if (i!=ordered.length) {
                 result.push(ordered[ordered.length-1]);
                 ordered.splice(ordered.length-1,1);
+				if (!direction) i--;
             }
             else {
-                 if (direction) i=0; else i++;
+                result.push({
+                    "index": -1,
+                    "pos": ordered[ordered.length-1].pos
+                })
+				ordered.splice(ordered.length-1,1);
+                if (direction) i=0; else i++;
             }
         }
         else { //if ((prev-ordered[i-1].pos)<(ordered[i].pos-prev)) 
