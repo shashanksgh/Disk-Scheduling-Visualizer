@@ -26,9 +26,10 @@ function uiInit() {
     $("#btnContinue").click(continueAnimation);
     $("#btnReset").click(resetAnimation);
     $("#btnGenerateQueueNew").click(function() { generateSeekPositions(true); });
-	$("#btnGenerateQueueAppend").click(function () { generateSeekPositions(false); });
+    $("#btnGenerateQueueAppend").click(function () { generateSeekPositions(false); });
 
     // Hide alerts
+    $("#alertAlgorithmError").hide();
     $("#alertQueueError").hide();
 
     // Make sure number inputs are fixed after inputing value
@@ -50,17 +51,17 @@ function uiInit() {
         var trackSize = $("#inputTrackSize").val();
         var startingTrack = $("#inputStartingTrack").val();
 
-		
+        
         /* TODO: disabled for now due to weird bug
-		if (startingTrack < 0) {
+        if (startingTrack < 0) {
             $("#inputStartingTrack").val("0");
         } else if (startingTrack >= trackSize) {
             $("#inputStartingTrack").val(trackSize - 1);
         }
-		*/
+        */
     });
-	
-	generateSeekPositions();
+    
+    generateSeekPositions();
 
     console.log("[DEBUG] uiInit() - end");
 }
@@ -71,6 +72,7 @@ function startAnimation() {
     console.log("[DEBUG] startAnimation() - TrackSize: " + $("#inputTrackSize").val());
 
     // Hide previous alerts, so fade-in anim always play
+    $("#alertAlgorithmError").hide();
     $("#alertQueueError").hide();
 
     // Lock configuration UI
@@ -80,6 +82,18 @@ function startAnimation() {
     animationControlsLock(true, true, true, true);
 
     // Do data validation
+    if (!validateAlgorithms())
+    {
+        // Enable queue error message
+        $("#alertAlgorithmError").alert();
+        $("#alertAlgorithmError").fadeIn();
+
+        // Reset controls and unlock configuration 
+        animationControlsLock(false, true, true, true);
+        configurationLock(false);
+        return;
+    }
+    
     if (!validateQueue()) {
         // Enable queue error message
         $("#alertQueueError").alert();
@@ -118,9 +132,9 @@ function continueAnimation() {
 
     // Lock button states before handling state transition
     animationControlsLock(true, true, true, true);
-	
-	animSetPaused(false);
-	
+    
+    animSetPaused(false);
+    
     // Update button states
     animationControlsLock(true, false, true, false);
     console.log("[DEBUG] continueAnimation() - end");
@@ -138,8 +152,8 @@ function resetAnimation() {
     $("#btnPause").prop("disabled", true);
     $("#btnContinue").prop("disabled", true);
     $("#btnReset").prop("disabled", true);
-	
-	animReset();
+    
+    animReset();
 
     // Unlock configuration UI
     configurationLock(false);
@@ -152,24 +166,28 @@ function resetAnimation() {
 // Lock/Disable or Unlock/Enable configuration inputs
 function configurationLock(lock) {
     if (lock) {
+        $("#algorithmSelect").prop("disabled", true);
+        $("#algorithmSelect").selectpicker("refresh");
         $("#inputTrackSize").prop("disabled", true);
         $("#inputStartingTrack").prop("disabled", true);
-		$("input[name='directionRadios']").prop("disabled", true);
+        $("input[name='directionRadios']").prop("disabled", true);
         $("#inputSeekPositionQueueGenSelect").prop("disabled", true);
         $("#inputSeekPositionQueueGenSelect").selectpicker("refresh");
         $("#inputGenerateCount").prop("disabled", true);
         $("#btnGenerateQueueNew").prop("disabled", true);
-		$("#btnGenerateQueueAppend").prop("disabled", true);
+        $("#btnGenerateQueueAppend").prop("disabled", true);
         $("#inputSeekPositionQueue").prop("disabled", true);
     } else {
+        $("#algorithmSelect").prop("disabled", false);
+        $("#algorithmSelect").selectpicker("refresh");
         $("#inputTrackSize").prop("disabled", false);
         $("#inputStartingTrack").prop("disabled", false);
-		$("input[name='directionRadios']").prop("disabled", false);
+        $("input[name='directionRadios']").prop("disabled", false);
         $("#inputSeekPositionQueueGenSelect").prop("disabled", false);
         $("#inputSeekPositionQueueGenSelect").selectpicker("refresh");
         $("#inputGenerateCount").prop("disabled", false);
         $("#btnGenerateQueueNew").prop("disabled", false);
-		$("#btnGenerateQueueAppend").prop("disabled", false);
+        $("#btnGenerateQueueAppend").prop("disabled", false);
         $("#inputSeekPositionQueue").prop("disabled", false);
     }
 }
@@ -231,6 +249,13 @@ function generateSeekPositions(clearCurrent) {
     }
 }
 
+function validateAlgorithms()
+{
+    var algorithms = $("#algorithmSelect").selectpicker("val");
+    
+    return (typeof algorithms !== 'undefined') && (algorithms.length > 0);
+}
+
 function validateQueue() {
     // Prepare for checks
     var trackSize = $("#inputTrackSize").val();
@@ -259,15 +284,25 @@ function validateQueue() {
 // Returns simple JSON object of configuration data
 function getConfigData() {
     var data = {};
+    
+    // Get algorithm selection
+    // It is array of algorithm keywords:
+    //  "fcfs" - FCFS (First Come, First Served)
+    //  "sstf" - SSTF (Shortest Seek Time First)
+    //  "scan" - Elevator (SCAN)
+    //  "cscan" - Circular SCAN (C-SCAN)
+    //  "look" - LOOK
+    //  "clook" - C-LOOK
+    data.algorithms = $("#algorithmSelect").selectpicker("val");
 
     // Fetch track size
     data.trackSize = $("#inputTrackSize").val();
 
     // Fetch track starting position
     data.trackStart = parseInt($("#inputStartingTrack").val());
-	
-	// Selected direction [right/left]
-	data.direction = parseInt($("input[name='directionRadios']:checked").val());
+    
+    // Selected direction [right/left]
+    data.direction = parseInt($("input[name='directionRadios']:checked").val());
 
     // Queue
     data.seekQueue = [];

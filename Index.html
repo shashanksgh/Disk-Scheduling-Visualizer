@@ -65,6 +65,25 @@
                                 </div>
                             </div>
                         </div>
+						<!-- CONFIGURATION - ALGORITHM SELECTION -->
+                        <div class="row">
+                            <div class="form-group">
+                                <label for="inputAlgorithmSelect">Algorithm (can select multiple)</label>
+                                <select id="algorithmSelect" class="selectpicker form-control" multiple>
+                                    <option value="fcfs">FCFS (First Come, First Served)</option>
+                                    <option value="sstf">SSTF (Shortest Seek Time First)</option>
+                                    <option value="scan">Elevator (SCAN)</option>
+                                    <option value="cscan">Circular SCAN (C-SCAN)</option>
+                                    <option value="look">LOOK</option>
+                                    <option value="clook">C-LOOK</option>
+                                </select>
+								<div class="alert alert-danger" id="alertAlgorithmError">
+                                    <button type="button" class="close" data-hide="alert">x</button>
+                                    <strong>Error! Algorithm selection is required!</strong>
+                                </div>
+                            </div>
+                        </div>
+						
                         <!-- CONFIGURATION - TRACK SIZE INPUT -->
                         <div class="row">
                             <div class="form-group">
