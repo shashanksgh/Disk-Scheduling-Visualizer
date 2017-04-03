@@ -29,9 +29,14 @@ body {
     }
 }
 
+#controlPanel .panel-heading {
+    height: 40px;
+}
+
 #controlPanel .panel-body {
     margin-left: 10px;
     margin-right: 10px;
+    height: 720px;
 }
 
 #controlPanel .form-group .radio {
@@ -44,8 +49,17 @@ body {
     white-space: normal;
 } 
 
-/* Canvas CSS */
+/* Canvas and its panel's CSS */
 #animCanvas {
     display: block; 
     margin: 20px auto;
+}
+
+#animCanvasPanel .panel-heading {
+    height: 40px;
+}
+
+#animCanvasPanel .panel-body {
+    height: 720px;
+    overflow-y: scroll;
 }
