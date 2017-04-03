@@ -271,25 +271,16 @@ function clook(start, size, direction, arr) {
 var algos = {
 	fcfs: {
 		name: 'First Come-First Serve (FCFS)',
+		short_name: 'FCFS',
 		func: function (track_start, track_size, track_direction, seek_queue) {
 			var result = fcfs(seek_queue);
 			return result;
 		}
 	},
 	
-	/*dummy: {
-		name: 'Really dumb algo',
-		func: function (track_start, track_size, track_direction, seek_queue) {
-			var result = yolo_copy(seek_queue);
-			result.sort(function (a, b) {
-				return a.pos - b.pos;
-			});
-			return result;
-		}
-	},*/
-	
 	sstf: {
 		name: 'Shortest Seek Time First (SSTF)',
+		short_name: 'SSTF',
 		func: function (track_start, track_size, track_direction, seek_queue) {
 			var result = sstf(track_start, track_direction, seek_queue);
             return result;
@@ -298,6 +289,7 @@ var algos = {
 	
 	scan: {
 		name: 'Elevator (SCAN)',
+		short_name: 'SCAN',
 		func: function (track_start, track_size, track_direction, seek_queue) {
 			var result = scan(track_start, track_size, track_direction, seek_queue);
             return result;
@@ -306,6 +298,7 @@ var algos = {
 	
 	cscan: {
 		name: 'Circular SCAN (C-SCAN)',
+		short_name: 'C-SCAN',
 		func: function (track_start, track_size, track_direction, seek_queue) {
 			var result = cscan(track_start, track_size, track_direction, seek_queue);
             return result;
@@ -314,6 +307,7 @@ var algos = {
 	
 	look: {
 		name: 'LOOK',
+		short_name: 'LOOK',
 		func: function (track_start, track_size, track_direction, seek_queue) {
 			var result = look(track_start, track_size, track_direction, seek_queue);
             return result;
@@ -322,6 +316,7 @@ var algos = {
 	
 	clook: {
 		name: 'C-LOOK',
+		short_name: 'C-LOOK',
 		func: function (track_start, track_size, track_direction, seek_queue) {
 			var result = clook(track_start, track_size, track_direction, seek_queue);
             return result;
