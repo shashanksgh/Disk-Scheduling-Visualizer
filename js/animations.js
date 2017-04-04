@@ -104,10 +104,12 @@ function update(cur_time_ms) {
     }
 
     context.clearRect(0, 0, w, h);
-
+	
     render(anim_time, dt, w, h);
 
     if (!anim_paused) {
+		// TODO: update slider with anim_time
+		
         anim_time += dt;
     }
     
