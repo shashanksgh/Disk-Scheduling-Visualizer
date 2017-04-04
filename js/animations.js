@@ -5,7 +5,7 @@ var anim_min_canvas_height = 480;
 
 var anim_track_size, anim_track_start, anim_seek_queue;
 
-// TODO: better colors!
+// TODO: better colors with more contrast
 var anim_colors = [
     'red',
     'orange',
@@ -17,6 +17,8 @@ var anim_colors = [
 ];
 
 function animSetup(config) {
+	anim_time = 0;
+	anim_paused = false;
     anim_track_size = config.trackSize;
     anim_track_start = config.trackStart;
     anim_track_direction = config.direction;
@@ -24,6 +26,8 @@ function animSetup(config) {
 	
     anim_data = [];
     
+	anim_total_length = 0;
+	
     var color_index = 0;
     for (var i in config.algorithms) {
         var algo_id = config.algorithms[i];
@@ -32,14 +36,43 @@ function animSetup(config) {
 		
         var processed_queue = algo_info.func(anim_track_start, anim_track_size, anim_track_direction, anim_seek_queue);
         if (processed_queue != null) {
+			var total_seek_distance = 0;
+			var total_jump_distance = 0;
+			
+			var prev_pos = anim_track_start;
+			var prev_minus = false;
+			
+			for (var j in processed_queue) {
+				var distance = Math.abs(processed_queue[j].pos - prev_pos);
+				
+				if (processed_queue[j].index == -1 && prev_minus) {
+					total_jump_distance += distance;
+				}
+				else {
+					total_seek_distance += distance;
+				}
+				
+				prev_minus = (processed_queue[j].index == -1);
+				prev_pos = processed_queue[j].pos;
+			}
+			
+			var total_head_movement = total_seek_distance + total_jump_distance;
+			if (total_head_movement > anim_total_length) {
+				anim_total_length = total_head_movement;
+			}
+			
             anim_data.push({
                 id: algo_id,
                 info: algo_info,
                 queue: processed_queue,
-                color: anim_colors[color_index++]
+                color: anim_colors[color_index++],
+				total_seek_distance: total_seek_distance,
+				total_jump_distance: total_jump_distance
             });  
         }
     }
+	
+	return anim_total_length;
 }
 
 function animStart(config) {
@@ -91,8 +124,6 @@ function animUpdate(cur_time_ms) {
 //
 //
 function render(t, dt, canvas_width, canvas_height) {
-    context.font = "9px Courier New";
-    
     var draw_tasks = [];
 	
     var radius_initial = 4;
@@ -106,6 +137,7 @@ function render(t, dt, canvas_width, canvas_height) {
 	pushRect(draw_tasks, 0, 0, canvas_width, canvas_height);
 	
 	// draw frametime counter
+	pushFont(draw_tasks, '9px Courier New');
 	pushTextAlign(draw_tasks, 'left');
 	pushTextBaseline(draw_tasks, 'top');
 	pushText(draw_tasks, round(dt * 1000, 2) + "ms", 0, 0);
@@ -126,10 +158,21 @@ function render(t, dt, canvas_width, canvas_height) {
 		
 		legend_x += 8 + 4;
 		
-		pushStyle(draw_tasks, 'black');
-		pushText(draw_tasks, algo_data.info.short_name, legend_x, legend_y + 4);
+		var str = algo_data.info.short_name;
+		str += ' (';
+		str += algo_data.total_seek_distance;
 		
-		legend_x += 48;
+		if (algo_data.total_jump_distance > 0) {
+			str += ', ';
+			str += algo_data.total_jump_distance;
+		}
+		
+		str += ')';
+		
+		pushStyle(draw_tasks, 'black');
+		pushText(draw_tasks, str, legend_x, legend_y + 4);
+		
+		legend_x += 96;
 	}
 	
     pushTextAlign(draw_tasks, 'center');
@@ -156,17 +199,19 @@ function render(t, dt, canvas_width, canvas_height) {
     }
 	
 	var start_x = padding + anim_track_start * segment_width;
+	var start_y = line_y + padding;
 	
-	// draw track start
-	pushCircle(draw_tasks, start_x, line_y, radius_initial);
+	pushCircle(draw_tasks, start_x, start_y, radius_initial, 'fill');
+	
+	var progress = t * 40;
 	
     for (var algo_index in anim_data) {
-        var node_y = line_y;
+        var node_y = start_y;
         
         var prev_node_pos = anim_track_start;
         
         var prev_x = start_x;
-        var prev_y = line_y;
+        var prev_y = node_y;
             
         var radius_incr = 2;
         var radius = radius_initial;
@@ -175,10 +220,32 @@ function render(t, dt, canvas_width, canvas_height) {
         
 		var prev_minus = false;
 		
+		var total_full_distance = 0;
+		
         for (var i in algo_data.queue) {
-			var item = algo_data.queue[i];
+			if (total_full_distance > progress) {
+				break;
+			}
 			
-            node_y += 0.125 * segment_width * Math.abs(item.pos - prev_node_pos);
+			var item = algo_data.queue[i];
+			var distance = Math.abs(item.pos - prev_node_pos);
+			var sign = Math.sign(item.pos - prev_node_pos);
+			
+			var is_horizontal = (item.index == -1 && prev_minus);
+			
+			var partial_distance = progress - total_full_distance;
+			if (partial_distance < 0) {
+				partial_distance = 0;
+			}
+			else if (partial_distance > distance) {
+				partial_distance = distance;
+			}
+			
+			if (is_horizontal) {
+				partial_distance = distance;
+			}
+				
+            node_y += 0.125 * segment_width * partial_distance;
             
             if (node_y > new_canvas_height) {
 				new_canvas_height = node_y;
@@ -191,16 +258,14 @@ function render(t, dt, canvas_width, canvas_height) {
                 radius = radius_initial;
             }
             
-            var node_x = padding + item.pos * segment_width;
+            var node_x = padding + (prev_node_pos + sign * partial_distance) * segment_width;
             
 			pushStyle(draw_tasks, algo_data.color);
 			
-			if (item.index == -1) {
-				if (prev_minus) {
-					node_y = prev_y;
-					
-					pushLineDash(draw_tasks, [5, 15]);
-				}
+			if (is_horizontal) {
+				node_y = prev_y;
+				
+				pushLineDash(draw_tasks, [5, 5]);
 			}
 			else {
 				pushLineDash(draw_tasks, []);
@@ -213,6 +278,10 @@ function render(t, dt, canvas_width, canvas_height) {
 			if (item.index != -1 && !prev_minus || prev_node_pos != item.pos) {
 				pushLineDash(draw_tasks, []);
 				pushCircle(draw_tasks, node_x, node_y, radius);
+			}
+			
+			if (item.index != -1 && !prev_minus) {
+				total_full_distance += distance;
 			}
 			
             prev_node_pos = item.pos;
@@ -240,6 +309,7 @@ function render(t, dt, canvas_width, canvas_height) {
 			}
 			
 			case 'text': {
+				context.font = "9px Courier New";
 				context.fillText(task.text, task.x, task.y);
 				
 				break;
@@ -253,6 +323,12 @@ function render(t, dt, canvas_width, canvas_height) {
 			
 			case 'baseline': {
 				context.textBaseline = task.baseline;
+				
+				break;
+			}
+			
+			case 'font': {
+				context.font = task.font;
 				
 				break;
 			}
@@ -333,6 +409,13 @@ function pushTextBaseline(draw_tasks, baseline) {
 	draw_tasks.push({
 		type: 'baseline',
 		baseline: baseline
+	});
+}
+
+function pushFont(draw_tasks, font) {
+	draw_tasks.push({
+		type: 'font',
+		font: font
 	});
 }
 
