@@ -5,6 +5,8 @@ var anim_min_canvas_height = 480;
 
 var anim_track_size, anim_track_start, anim_seek_queue;
 
+var anim_speed = 40;
+
 // TODO: better colors with more contrast
 var anim_colors = [
     'red',
@@ -74,7 +76,7 @@ function animSetConfig(config) {
         }
     }
 	
-	return anim_total_length;
+	return anim_total_length / anim_speed;
 }
 
 function animSetTime(time) {
@@ -197,7 +199,7 @@ function render(t, dt, canvas_width, canvas_height) {
 	
 	pushCircle(draw_tasks, start_x, start_y, radius_initial, 'fill');
 	
-	var progress = t * 40;
+	var progress = t * anim_speed;
 	
     for (var algo_index in anim_data) {
         var node_y = start_y;
