@@ -38,7 +38,7 @@
     <div class="container">
         <div class="row">
             <!-- CONTROL PANEL -->
-            <div id="controlPanel" class="col-md-3">
+            <div id="controlPanel" class="col-md-4">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <span>Control panel</span>
@@ -46,7 +46,7 @@
                     </div>
                     <div class="panel-body">
                         <!-- ANIMATION CONTROLS -->
-                        <div class="row">
+                        <div class="row" style="display: none;">
                             <div class="form-group">
                                 <label>Animation controls</label>
                                 <div class="btn-group btn-group-justified btn-group-control-panel" role="group" aria-label="...">
@@ -66,14 +66,14 @@
                             </div>
                         </div>
                         <!-- CONFIGURATION - ALGORITHM SELECTION -->
-                        <div class="row" style="margin-bottom: 40px;">
+                        <div class="row">
                             <div class="form-group">
                                 <label for="inputAlgorithmSelect">Algorithm(s)</label>
                                 <select id="algorithmSelect" class="selectpicker form-control" multiple>
-                                    <option value="fcfs" selected>FCFS (First Come, First Served)</option>
-                                    <option value="sstf">SSTF (Shortest Seek Time First)</option>
-                                    <option value="scan">Elevator (SCAN)</option>
-                                    <option value="cscan">Circular SCAN (C-SCAN)</option>
+                                    <option value="fcfs" selected>FCFS</option>
+                                    <option value="sstf">SSTF</option>
+                                    <option value="scan">SCAN</option>
+                                    <option value="cscan">C-SCAN</option>
                                     <option value="look">LOOK</option>
                                     <option value="clook">C-LOOK</option>
                                 </select>
@@ -160,7 +160,7 @@
             </div>
 
             <!-- CANVAS -->
-            <div id="animCanvasPanel" class="col-md-9">
+            <div id="animCanvasPanel" class="col-md-8">
                 <div class="panel panel-default">
                     <div class="panel-heading">Disk scheduling animation canvas</div>
                     <div class="panel-body">

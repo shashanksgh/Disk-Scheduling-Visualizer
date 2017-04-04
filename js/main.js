@@ -53,7 +53,7 @@ function uiInit() {
         if (isNaN(value) || value < 0)
             $("#inputStartingTrack").val("0");
         else if (!isNaN(trackSize) && value >= trackSize)
-            $("#inputStartingTrack").val(trackSize);
+            $("#inputStartingTrack").val(trackSize - 1);
     });
     
     // Attach onConfigChange handler to input events of config controls
