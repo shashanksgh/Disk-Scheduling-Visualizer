@@ -16,9 +16,11 @@ var anim_colors = [
     'violet'
 ];
 
-function animSetup(config) {
-	anim_time = 0;
-	anim_paused = false;
+function animSetConfig(config) {
+	// TODO: remove these when proper anim control UI is done 
+	animSetTime(0);
+	animSetPaused(false);
+	
     anim_track_size = config.trackSize;
     anim_track_start = config.trackStart;
     anim_track_direction = config.direction;
@@ -75,12 +77,6 @@ function animSetup(config) {
 	return anim_total_length;
 }
 
-function animStart(config) {
-    animReset();
-    animSetup(config);
-    animSetPaused(false);
-}
-
 function animSetTime(time) {
     anim_time = time;
 }
@@ -89,13 +85,11 @@ function animSetPaused(paused) {
     anim_paused = paused;
 }
 
-function animReset() {
-    animSetTime(0);
-    animSetPaused(true);
-    //anim_data = null;
+function animInit() {
+	window.requestAnimationFrame(update)
 }
 
-function animUpdate(cur_time_ms) {
+function update(cur_time_ms) {
     var w = animCanvas.width;
     var h = animCanvas.height;
     var cur_time = cur_time_ms / 1000;
@@ -117,7 +111,7 @@ function animUpdate(cur_time_ms) {
     
     last_time = cur_time;
 
-    window.requestAnimationFrame(animUpdate);
+    window.requestAnimationFrame(update);
 }
 
 //

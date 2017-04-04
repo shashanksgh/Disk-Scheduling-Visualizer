@@ -10,8 +10,8 @@ var last_time = null;
 function mainInit() {
     console.log("[DEBUG] mainInit() - begin");
     uiInit();
-    window.requestAnimationFrame(animUpdate);
-    animSetup(getConfigData());
+    animInit();
+    animSetConfig(getConfigData());
     console.log("[DEBUG] mainInit() - end");
 }
 
@@ -107,7 +107,9 @@ function startAnimation() {
         return;
     }
 
-    animStart(getConfigData());
+    animSetConfig(getConfigData());
+	animSetTime(0);
+	animSetPaused(false);
 
     // Update button states
     animationControlsLock(true, false, true, false);
@@ -155,7 +157,8 @@ function resetAnimation() {
     $("#btnContinue").prop("disabled", true);
     $("#btnReset").prop("disabled", true);
     
-    animReset();
+	animSetTime(0);
+    animSetPaused(true);
 
     // Unlock configuration UI
     configurationLock(false);
@@ -343,5 +346,5 @@ function getConfigData() {
 }
 
 function onConfigChange() {
-    animSetup(getConfigData());
+    animSetConfig(getConfigData());
 }
