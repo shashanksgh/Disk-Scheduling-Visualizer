@@ -9,9 +9,19 @@ var last_time = null;
 /// FUNCTIONS
 function mainInit() {
     console.log("[DEBUG] mainInit() - begin");
+    
+    // Initialize UI elements
     uiInit();
+    
+    // Initialize animation system
     animInit();
+    
+    // Set animation configuration
     animSetConfig(getConfigData());
+    
+    // Reset animation
+    animSetTime(0);
+    animSetPaused(true);
     console.log("[DEBUG] mainInit() - end");
 }
 
@@ -63,6 +73,7 @@ function uiInit() {
     $("input[name='directionRadios']").on("change", onConfigChange);
     $("#inputSeekPositionQueue").on("input", onConfigChange);
     
+    // Generate initial positions
     generateSeekPositions();
 
     console.log("[DEBUG] uiInit() - end");
@@ -78,7 +89,7 @@ function startAnimation() {
     $("#alertQueueError").hide();
 
     // Lock configuration UI
-    configurationLock(true);
+    //configurationLock(true);
 
     // Lock button states before handling state transition
     animationControlsLock(true, true, true, true);
@@ -161,7 +172,7 @@ function resetAnimation() {
     animSetPaused(true);
 
     // Unlock configuration UI
-    configurationLock(false);
+    //configurationLock(false);
 
     // Update button states
     animationControlsLock(false, true, true, true);
@@ -346,5 +357,13 @@ function getConfigData() {
 }
 
 function onConfigChange() {
+    // Set animation configuration
     animSetConfig(getConfigData());
+    
+    // Reset animation
+    animSetTime(0);
+    animSetPaused(true);
+
+    // Update button states
+    animationControlsLock(false, true, true, true);
 }
