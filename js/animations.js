@@ -7,11 +7,9 @@ var anim_track_size, anim_track_start, anim_seek_queue;
 
 var anim_speed = 40;
 
-// TODO: better colors with more contrast
 var anim_colors = [
     'red',
     'orange',
-    //'yellow',
     'green',
     'blue',
     'indigo',
@@ -19,10 +17,6 @@ var anim_colors = [
 ];
 
 function animSetConfig(config) {
-	// TODO: remove these when proper anim control UI is done 
-	animSetTime(0);
-	animSetPaused(false);
-	
     anim_track_size = config.trackSize;
     anim_track_start = config.trackStart;
     anim_track_direction = config.direction;
@@ -131,7 +125,7 @@ function render(t, dt, canvas_width, canvas_height) {
 	
     var radius_initial = 4;
     var padding = 20;
-    var line_y = padding * 3;
+    var line_y = padding * 3.5;
     var new_canvas_height = 480;
     var segment_width = (canvas_width - 2 * padding) / (anim_track_size - 1);
 	
@@ -140,13 +134,10 @@ function render(t, dt, canvas_width, canvas_height) {
 	pushRect(draw_tasks, 0, 0, canvas_width, canvas_height);
 	
 	// draw frametime counter
-	pushFont(draw_tasks, '9px Courier New');
+	pushFont(draw_tasks, '11px Courier New');
 	pushTextAlign(draw_tasks, 'left');
 	pushTextBaseline(draw_tasks, 'top');
 	pushText(draw_tasks, round(dt * 1000, 2) + "ms", 0, 0);
-	
-	// draw main track line
-    pushLine(draw_tasks, padding, line_y, canvas_width - padding, line_y);
 	
 	var legend_x = padding;
 	var legend_y = padding;
@@ -155,6 +146,12 @@ function render(t, dt, canvas_width, canvas_height) {
 	
 	for (var i in anim_data) {
 		var algo_data = anim_data[i];
+		
+		if (i == 4) {
+			legend_x = padding;
+			legend_y += 30;
+			line_y += 30;
+		}
 		
 		pushStyle(draw_tasks, algo_data.color);
 		pushRect(draw_tasks, legend_x, legend_y, 8, 8, 'fill');
@@ -175,8 +172,11 @@ function render(t, dt, canvas_width, canvas_height) {
 		pushStyle(draw_tasks, 'black');
 		pushText(draw_tasks, str, legend_x, legend_y + 4);
 		
-		legend_x += 96;
+		legend_x += 128;
 	}
+	
+	// draw main track line
+    pushLine(draw_tasks, padding, line_y, canvas_width - padding, line_y);
 	
     pushTextAlign(draw_tasks, 'center');
 	pushTextBaseline(draw_tasks, 'bottom');
@@ -198,7 +198,7 @@ function render(t, dt, canvas_width, canvas_height) {
 		}
 		
 		// draw track notch
-		pushLine(draw_tasks, notch_x, line_y - padding / 2, notch_x, line_y + padding / 2);
+		pushLine(draw_tasks, notch_x, line_y - padding * 0.4, notch_x, line_y + padding * 0.4);
     }
 	
 	var start_x = padding + anim_track_start * segment_width;
@@ -248,13 +248,13 @@ function render(t, dt, canvas_width, canvas_height) {
 				partial_distance = distance;
 			}
 				
-            node_y += 0.125 * segment_width * partial_distance;
+            node_y += 0.15 * segment_width * partial_distance;
             
             if (node_y > new_canvas_height) {
 				new_canvas_height = node_y;
 			}
             
-            if (prev_node_pos == item.pos && item.index != -1 && !prev_minus) {
+            if (prev_node_pos == item.pos && !is_horizontal) {
                 radius += radius_incr;
             }
             else {
@@ -278,9 +278,16 @@ function render(t, dt, canvas_width, canvas_height) {
 				pushLine(draw_tasks, prev_x, prev_y, node_x, node_y);
 			}
 			
-			if (item.index != -1 && !prev_minus || prev_node_pos != item.pos) {
+			if (!is_horizontal || prev_node_pos != item.pos) {
 				pushLineDash(draw_tasks, []);
-				pushCircle(draw_tasks, node_x, node_y, radius);
+				
+				if (partial_distance < distance) {
+					var needle_size = 10;
+					pushNeedle(draw_tasks, node_x - needle_size / 2, node_y, needle_size, needle_size, 'fill');
+				}
+				else {
+					pushCircle(draw_tasks, node_x, node_y, radius);
+				}
 			}
 			
 			if (!is_horizontal) {
@@ -312,7 +319,6 @@ function render(t, dt, canvas_width, canvas_height) {
 			}
 			
 			case 'text': {
-				context.font = "9px Courier New";
 				context.fillText(task.text, task.x, task.y);
 				
 				break;
@@ -377,6 +383,23 @@ function render(t, dt, canvas_width, canvas_height) {
 				}
 				else {
 					context.strokeRect(task.x, task.y, task.w, task.h);
+				}
+				
+				break;
+			}
+			
+			case 'needle': {
+				context.beginPath();
+				context.moveTo(task.x + task.w / 2, task.y);
+				context.lineTo(task.x + task.w, task.y + task.h);
+				context.lineTo(task.x, task.y + task.h);
+				context.closePath();
+				
+				if (task.mode == 'fill') {
+					context.fill();
+				}
+				else {
+					context.stroke();
 				}
 				
 				break;
@@ -452,6 +475,17 @@ function pushLineDash(draw_tasks, segments) {
 function pushRect(draw_tasks, x, y, w, h, mode) {
 	draw_tasks.push({
 		type: 'rect',
+		mode: mode,
+		x: x,
+		y: y,
+		w: w,
+		h: h
+	});
+}
+
+function pushNeedle(draw_tasks, x, y, w, h, mode) {
+	draw_tasks.push({
+		type: 'needle',
 		mode: mode,
 		x: x,
 		y: y,
