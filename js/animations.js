@@ -60,9 +60,8 @@ function animSetConfig(config) {
 				prev_pos = processed_queue[j].pos;
 			}
 			
-			var total_head_movement = total_seek_distance + total_jump_distance;
-			if (total_head_movement > anim_total_length) {
-				anim_total_length = total_head_movement;
+			if (total_seek_distance > anim_total_length) {
+				anim_total_length = total_seek_distance;
 			}
 			
             anim_data.push({
