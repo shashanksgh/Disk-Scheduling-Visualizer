@@ -63,3 +63,8 @@ body {
     height: 776px;
     overflow-y: scroll;
 }
+
+/* Slider CSS */
+#labelAnimProgress {
+    min-width: 125px;
+}
