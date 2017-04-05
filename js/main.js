@@ -20,7 +20,7 @@ function mainInit() {
     var animTotalProgress = parseInt(animSetConfig(getConfigData()));
     
     // Reset animation
-    animSetTime(0);
+    animSetTimeStep(0);
     animSetPaused(true);
     
     // Set initial animation progress slider parameters 
@@ -129,7 +129,7 @@ function startAnimation() {
     updateAnimProgressSlider(0, animTotalProgress, 0, 1);
     
     // Reset animation time
-    animSetTime(0);
+    animSetTimeStep(0);
     
     // Check if starting animation autoplay immediately
     if ($("#checkBoxStartPaused").prop("checked")) {
@@ -184,7 +184,7 @@ function resetAnimation() {
     $("#btnContinue").prop("disabled", true);
     $("#btnReset").prop("disabled", true);
     
-	animSetTime(0);
+	animSetTimeStep(0);
     animSetPaused(true);
     updateAnimProgressSliderValue(0);
 
@@ -375,7 +375,7 @@ function onConfigChange() {
     var animTotalProgress = parseInt(animSetConfig(getConfigData()));
     
     // Reset animation
-    animSetTime(0);
+    animSetTimeStep(0);
     animSetPaused(true);
     
     // Set initial animation progress slider parameters 
@@ -386,16 +386,29 @@ function onConfigChange() {
 }
 
 function onAnimProgressSliderChange() {
+    // Pause auto-play if manually changing slider values
+    animSetPaused(true);
+    
     var slider = $("#sliderAnimProgress");
     var newValue = parseInt(slider.val());
     var max = parseInt(slider.attr("max"));
-    
-    // Update label
     var label = $("#labelAnimProgress");
-    label.text(newValue + " / " + max);
+        
+    if (newValue === 0) {
+        label.text(newValue + " / " + max);
+        animationControlsLock(false, true, true, true);
+    } else if (newValue < max) {
+        label.text(newValue + " / " + max);
+        animationControlsLock(true, true, false, false);        
+    } else if (newValue === max) { // When animation reaches end
+        label.text(newValue + " / " + max);
+        animationControlsLock(true, true, true, false);
+    } else {
+        animationControlsLock(true, true, true, false);
+    }
     
     // Update time
-    animSetTime(parseFloat(newValue) / anim_speed);
+    animSetTimeStep(parseFloat(newValue));
 }
 
 function updateAnimProgressSlider(min, max, value, step) {
@@ -413,11 +426,21 @@ function updateAnimProgressSliderValue(newValue)
 {
     var slider = $("#sliderAnimProgress");
     var max = parseInt(slider.attr("max"));
+    var label = $("#labelAnimProgress");
     
-    if (newValue <= max) {
+    if (newValue === 0) {
         slider.val(newValue);
-        
-        var label = $("#labelAnimProgress");
         label.text(newValue + " / " + max);
+        animationControlsLock(false, true, true, true);        
+    } else if (newValue < max) {
+        slider.val(newValue);
+        label.text(newValue + " / " + max);
+        animationControlsLock(true, false, true, false);        
+    } else if (newValue === max) { // When animation reaches end
+        slider.val(newValue);
+        label.text(newValue + " / " + max);
+        animationControlsLock(true, true, true, false);
+    } else {
+        animationControlsLock(true, true, true, false);
     }
 }

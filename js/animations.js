@@ -79,6 +79,10 @@ function animSetConfig(config) {
 	return anim_total_length;
 }
 
+function animSetTimeStep(timeStep) {
+    animSetTime(timeStep / anim_speed);
+}
+
 function animSetTime(time) {
     anim_time = time;
 }
