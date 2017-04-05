@@ -11,7 +11,7 @@ var anim_speed = 40;
 var anim_colors = [
     'red',
     'orange',
-    'yellow',
+    //'yellow',
     'green',
     'blue',
     'indigo',
