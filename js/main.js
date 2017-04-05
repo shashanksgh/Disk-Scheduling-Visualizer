@@ -399,13 +399,11 @@ function onAnimProgressSliderChange() {
 }
 
 function updateAnimProgressSlider(min, max, value, step) {
-    var slider = $("#sliderAnimProgress");
-    slider.attr({
-        min: min,
-        max: max,
-        value: value,
-        step: step
-    });
+    var slider = $("#sliderAnimProgress")[0];
+    slider.min = min;
+    slider.max = max;
+    slider.value = value;
+    slider.step = step;
     
     var label = $("#labelAnimProgress");
     label.text(value + " / " + max);
