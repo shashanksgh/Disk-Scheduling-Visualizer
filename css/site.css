@@ -1,5 +1,5 @@
 body {
-    padding-top: 70px;
+    padding-top: 60px;
 }
 
 .btn-group-control-panel .btn-group {
@@ -36,7 +36,7 @@ body {
 #controlPanel .panel-body {
     margin-left: 10px;
     margin-right: 10px;
-    height: 720px;
+    min-height: 776px;
 }
 
 #controlPanel .form-group .radio {
@@ -60,6 +60,6 @@ body {
 }
 
 #animCanvasPanel .panel-body {
-    height: 720px;
+    height: 776px;
     overflow-y: scroll;
 }
