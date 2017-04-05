@@ -283,7 +283,7 @@ function render(t, dt, canvas_width, canvas_height) {
 				pushCircle(draw_tasks, node_x, node_y, radius);
 			}
 			
-			if (item.index != -1 && !prev_minus) {
+			if (!is_horizontal) {
 				total_full_distance += distance;
 			}
 			
