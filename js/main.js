@@ -444,8 +444,10 @@ function updateAnimProgressSliderValue(newValue)
         slider.val(newValue);
         label.text(newValue + " / " + max);
         animationControlsLock(true, true, true, false);
+        animSetPaused(true);
     } else {
         animationControlsLock(true, true, true, false);
+        animSetPaused(true);
     }
 }
 
