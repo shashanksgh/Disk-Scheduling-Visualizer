@@ -5,6 +5,7 @@
 var animCanvas = document.getElementById("animCanvas");
 var context = animCanvas.getContext("2d");
 var last_time = null;
+var autoScrollFlag = false;
 
 /// FUNCTIONS
 function mainInit() {
@@ -409,6 +410,9 @@ function onAnimProgressSliderChange() {
     
     // Update time
     animSetTimeStep(parseFloat(newValue));
+    
+    // Toggle auto-scroll flag on
+    autoScrollFlag = true;
 }
 
 function updateAnimProgressSlider(min, max, value, step) {
@@ -442,5 +446,17 @@ function updateAnimProgressSliderValue(newValue)
         animationControlsLock(true, true, true, false);
     } else {
         animationControlsLock(true, true, true, false);
+    }
+}
+
+function handleAutoScrollCanvas(force)
+{
+    if (autoScrollFlag || force)
+    {
+        // Auto-scroll canvas panel to bottom
+        $("#animCanvasPanelScrollElem").scrollTop($("#animCanvas").height() + 100);
+        
+        // Reset auto-scroll flag
+        autoScrollFlag = false;
     }
 }

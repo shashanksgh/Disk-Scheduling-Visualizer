@@ -108,9 +108,15 @@ function update(cur_time_ms) {
 		// Update animation progress slider steps
         // Step X = anim_time * anim_speed
         updateAnimProgressSliderValue(parseInt(anim_time * anim_speed));
+        
+        // Force auto-scroll if not paused
+        handleAutoScrollCanvas(true);
 		
         anim_time += dt;
     }
+    
+    // Execute auto-scroll if required
+    handleAutoScrollCanvas();
     
     last_time = cur_time;
 
@@ -305,6 +311,8 @@ function render(t, dt, canvas_width, canvas_height) {
     
     if (new_canvas_height > anim_min_canvas_height) {
         animCanvas.height = new_canvas_height + 50;
+    } else {
+        animCanvas.height = anim_min_canvas_height;
     }
 	
 	for (var i in draw_tasks) {
