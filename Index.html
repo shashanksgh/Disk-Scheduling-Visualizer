@@ -63,8 +63,27 @@
                                         <button id="btnReset" type="button" class="btn btn-default">Reset</button>
                                     </div>
                                 </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="checkBoxStartPaused">
+                                        Start paused
+                                    </label>
+                                </div>
                             </div>
                         </div>
+                        <!-- CONFIGURATION - ANIMATION STEPS -->
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <label for="sliderAnimProgress">Animation progress slider</label>
+                                    <div class="input-group">                                        
+                                        <input id="sliderAnimProgress" type="range" class="form-control">
+                                        <div class="input-group-addon">Steps: </div>
+                                        <div id="labelAnimProgress" class="input-group-addon"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                        
                         <!-- CONFIGURATION - ALGORITHM SELECTION -->
                         <div class="row">
                             <div class="form-group">
@@ -82,8 +101,7 @@
                                     <strong>Error! Algorithm selection is required!</strong>
                                 </div>
                             </div>
-                        </div>
-                        
+                        </div>                        
                         <!-- CONFIGURATION - TRACK SIZE INPUT -->
                         <div class="row">
                             <div class="form-group">

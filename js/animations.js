@@ -76,7 +76,7 @@ function animSetConfig(config) {
         }
     }
 	
-	return anim_total_length / anim_speed;
+	return anim_total_length;
 }
 
 function animSetTime(time) {
@@ -108,7 +108,9 @@ function update(cur_time_ms) {
     render(anim_time, dt, w, h);
 
     if (!anim_paused) {
-		// TODO: update slider with anim_time
+		// Update animation progress slider steps
+        // Step X = anim_time * anim_speed
+        updateAnimProgressSliderValue(parseInt(anim_time * anim_speed));
 		
         anim_time += dt;
     }

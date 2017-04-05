@@ -10,18 +10,22 @@ var last_time = null;
 function mainInit() {
     console.log("[DEBUG] mainInit() - begin");
     
-    // Initialize UI elements
-    uiInit();
-    
     // Initialize animation system
     animInit();
     
-    // Set animation configuration
-    animSetConfig(getConfigData());
+    // Initialize UI elements
+    uiInit();
+    
+    // Setup initial animation config
+    var animTotalProgress = parseInt(animSetConfig(getConfigData()));
     
     // Reset animation
     animSetTime(0);
     animSetPaused(true);
+    
+    // Set initial animation progress slider parameters 
+    updateAnimProgressSlider(0, animTotalProgress, 0, 1);
+    
     console.log("[DEBUG] mainInit() - end");
 }
 
@@ -72,6 +76,9 @@ function uiInit() {
     $("#inputStartingTrack").on("input", onConfigChange);
     $("input[name='directionRadios']").on("change", onConfigChange);
     $("#inputSeekPositionQueue").on("input", onConfigChange);
+
+    // Add change event to animation progress slider
+    $("#sliderAnimProgress").on("input", onAnimProgressSliderChange);
     
     // Generate initial positions
     generateSeekPositions();
@@ -87,9 +94,6 @@ function startAnimation() {
     // Hide previous alerts, so fade-in anim always play
     $("#alertAlgorithmError").hide();
     $("#alertQueueError").hide();
-
-    // Lock configuration UI
-    //configurationLock(true);
 
     // Lock button states before handling state transition
     animationControlsLock(true, true, true, true);
@@ -118,12 +122,24 @@ function startAnimation() {
         return;
     }
 
-    animSetConfig(getConfigData());
-	animSetTime(0);
-	animSetPaused(false);
+    // Set animation config and update progress slider
+    var animTotalProgress = parseInt(animSetConfig(getConfigData()));
+    
+    // Set initial animation progress slider parameters 
+    updateAnimProgressSlider(0, animTotalProgress, 0, 1);
+    
+    // Reset animation time
+    animSetTime(0);
+    
+    // Check if starting animation autoplay immediately
+    if ($("#checkBoxStartPaused").prop("checked")) {
+        animSetPaused(true);
+        animationControlsLock(true, true, false, false);
+    } else {
+        animSetPaused(false);
+        animationControlsLock(true, false, true, false);
+    }
 
-    // Update button states
-    animationControlsLock(true, false, true, false);
     console.log("[DEBUG] startAnimation() - end");
 }
 
@@ -170,9 +186,7 @@ function resetAnimation() {
     
 	animSetTime(0);
     animSetPaused(true);
-
-    // Unlock configuration UI
-    //configurationLock(false);
+    updateAnimProgressSliderValue(0);
 
     // Update button states
     animationControlsLock(false, true, true, true);
@@ -357,13 +371,55 @@ function getConfigData() {
 }
 
 function onConfigChange() {
-    // Set animation configuration
-    animSetConfig(getConfigData());
+    // Setup initial animation config
+    var animTotalProgress = parseInt(animSetConfig(getConfigData()));
     
     // Reset animation
     animSetTime(0);
     animSetPaused(true);
+    
+    // Set initial animation progress slider parameters 
+    updateAnimProgressSlider(0, animTotalProgress, 0, 1);
 
     // Update button states
     animationControlsLock(false, true, true, true);
+}
+
+function onAnimProgressSliderChange() {
+    var slider = $("#sliderAnimProgress");
+    var newValue = parseInt(slider.val());
+    var max = parseInt(slider.attr("max"));
+    
+    // Update label
+    var label = $("#labelAnimProgress");
+    label.text(newValue + " / " + max);
+    
+    // Update time
+    animSetTime(parseFloat(newValue) / anim_speed);
+}
+
+function updateAnimProgressSlider(min, max, value, step) {
+    var slider = $("#sliderAnimProgress");
+    slider.attr({
+        min: min,
+        max: max,
+        value: value,
+        step: step
+    });
+    
+    var label = $("#labelAnimProgress");
+    label.text(value + " / " + max);
+}
+
+function updateAnimProgressSliderValue(newValue)
+{
+    var slider = $("#sliderAnimProgress");
+    var max = parseInt(slider.attr("max"));
+    
+    if (newValue <= max) {
+        slider.val(newValue);
+        
+        var label = $("#labelAnimProgress");
+        label.text(newValue + " / " + max);
+    }
 }
